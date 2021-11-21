@@ -4,6 +4,7 @@ use crate::hello_world;
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
     account_info::AccountInfo,
+    clock::Epoch,
     entrypoint,
     entrypoint::ProgramResult,
     instruction::{AccountMeta, Instruction},
@@ -24,28 +25,23 @@ pub fn greeting(
 ) -> Result<Instruction, ProgramError> {
     let data = MyInstruction::Greeting { id }.try_to_vec()?;
 
-    println!("{:?}", data);
-
     let mut accounts = Vec::with_capacity(1);
     accounts.push(AccountMeta::new(*greeted_pubkey, false));
 
-    Ok(Instruction::new_with_borsh(
-        *program_id,
-        &data.as_slice(),
-        accounts,
-    ))
+    Ok(Instruction::new_with_borsh(*program_id, &data, accounts))
 }
 
 impl MyInstruction {
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
-        use ProgramError::InvalidArgument;
+        println!("{}", input.len());
 
-        MyInstruction::try_from_slice(input).map_err(|_| InvalidArgument)
+        solana_program::borsh::try_from_slice_unchecked::<MyInstruction>(input)
+            .map_err(|_| ProgramError::InvalidArgument)
     }
 }
 
 pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], input: &[u8]) -> ProgramResult {
-    println!("{:?}", input);
+    println!("process input: {:?}", input);
     let instruction = MyInstruction::unpack(input)?;
 
     match instruction {
@@ -68,4 +64,34 @@ pub fn process_instruction(
         return Err(error);
     }
     Ok(())
+}
+// Sanity tests
+#[cfg(test)]
+mod test {
+    use super::*;
+    use solana_program::clock::Epoch;
+    use std::mem;
+    #[test]
+    fn test_sanity() {
+        let program_id = Pubkey::default();
+        let key = Pubkey::default();
+        let mut lamports = 0;
+        let mut data = vec![0; mem::size_of::<u32>()];
+        let owner = Pubkey::default();
+        let account = AccountInfo::new(
+            &key,
+            false,
+            true,
+            &mut lamports,
+            &mut data,
+            &owner,
+            false,
+            Epoch::default(),
+        );
+        let instruction_data: Vec<u8> = MyInstruction::Greeting { id: 0 }.try_to_vec().unwrap();
+
+        let accounts = vec![account];
+
+        process_instruction(&program_id, &accounts, &instruction_data).unwrap();
+    }
 }
