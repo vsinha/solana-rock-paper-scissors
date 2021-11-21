@@ -1,5 +1,6 @@
 use borsh::BorshDeserialize;
-use helloworld::{process_instruction, GreetingAccount};
+use helloworld::entrypoint::{greeting, process_instruction};
+use helloworld::hello_world::GreetingAccount;
 use solana_program_test::*;
 use solana_sdk::{
     account::Account,
@@ -46,15 +47,22 @@ async fn test_helloworld() {
 
     // Greet once
     let mut transaction = Transaction::new_with_payer(
-        &[Instruction::new_with_bincode(
-            program_id,
-            &[0], // ignored but makes the instruction unique in the slot
-            vec![AccountMeta::new(greeted_pubkey, false)],
-        )],
+        &[greeting(&program_id, &greeted_pubkey, 0).unwrap()],
         Some(&payer.pubkey()),
     );
+
+    // let mut transaction = Transaction::new_with_payer(
+    //     &[Instruction::new_with_bincode(
+    //         program_id,
+    //         &[0], // ignored but makes the instruction unique in the slot
+    //         vec![AccountMeta::new(greeted_pubkey, false)],
+    //     )],
+    //     Some(&payer.pubkey()),
+    // );
     transaction.sign(&[&payer], recent_blockhash);
-    banks_client.process_transaction(transaction).await.unwrap();
+    let res = banks_client.process_transaction(transaction).await;
+    println!("{:?}", res);
+    res.unwrap();
 
     // Verify account has one greeting
     let greeted_account = banks_client
