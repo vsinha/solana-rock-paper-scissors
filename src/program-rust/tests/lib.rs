@@ -2,13 +2,7 @@ use borsh::BorshDeserialize;
 use helloworld::entrypoint::{greeting, process_instruction};
 use helloworld::hello_world::GreetingAccount;
 use solana_program_test::*;
-use solana_sdk::{
-    account::Account,
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-    signature::Signer,
-    transaction::Transaction,
-};
+use solana_sdk::{account::Account, pubkey::Pubkey, signature::Signer, transaction::Transaction};
 use std::mem;
 
 #[tokio::test]
@@ -51,14 +45,6 @@ async fn test_helloworld() {
         Some(&payer.pubkey()),
     );
 
-    // let mut transaction = Transaction::new_with_payer(
-    //     &[Instruction::new_with_bincode(
-    //         program_id,
-    //         &[0], // ignored but makes the instruction unique in the slot
-    //         vec![AccountMeta::new(greeted_pubkey, false)],
-    //     )],
-    //     Some(&payer.pubkey()),
-    // );
     transaction.sign(&[&payer], recent_blockhash);
     let res = banks_client.process_transaction(transaction).await;
     println!("{:?}", res);
@@ -79,11 +65,7 @@ async fn test_helloworld() {
 
     // Greet again
     let mut transaction = Transaction::new_with_payer(
-        &[Instruction::new_with_bincode(
-            program_id,
-            &[1], // ignored but makes the instruction unique in the slot
-            vec![AccountMeta::new(greeted_pubkey, false)],
-        )],
+        &[greeting(&program_id, &greeted_pubkey, 1).unwrap()],
         Some(&payer.pubkey()),
     );
     transaction.sign(&[&payer], recent_blockhash);

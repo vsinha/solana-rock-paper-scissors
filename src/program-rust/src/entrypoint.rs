@@ -4,7 +4,6 @@ use crate::hello_world;
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
     account_info::AccountInfo,
-    clock::Epoch,
     entrypoint,
     entrypoint::ProgramResult,
     instruction::{AccountMeta, Instruction},
@@ -23,7 +22,7 @@ pub fn greeting(
     greeted_pubkey: &Pubkey,
     id: u32,
 ) -> Result<Instruction, ProgramError> {
-    let data = MyInstruction::Greeting { id }.try_to_vec()?;
+    let data = MyInstruction::Greeting { id };
 
     let mut accounts = Vec::with_capacity(1);
     accounts.push(AccountMeta::new(*greeted_pubkey, false));
@@ -45,10 +44,7 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], input: &[u8]) -> P
     let instruction = MyInstruction::unpack(input)?;
 
     match instruction {
-        MyInstruction::Greeting { id: _ } => {
-            // msg!("Instruction: InitializeMint");
-            hello_world::process(program_id, accounts)
-        }
+        MyInstruction::Greeting { id: _ } => hello_world::process(program_id, accounts),
     }
 }
 
@@ -65,6 +61,7 @@ pub fn process_instruction(
     }
     Ok(())
 }
+
 // Sanity tests
 #[cfg(test)]
 mod test {
@@ -88,6 +85,7 @@ mod test {
             false,
             Epoch::default(),
         );
+
         let instruction_data: Vec<u8> = MyInstruction::Greeting { id: 0 }.try_to_vec().unwrap();
 
         let accounts = vec![account];
