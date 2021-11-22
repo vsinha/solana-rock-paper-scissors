@@ -1,9 +1,8 @@
-//! Program entrypoint
-
 use crate::hello_world;
+use crate::rps::{process_rps_set, RockPaperScissorsMove};
 use borsh::{BorshDeserialize, BorshSerialize};
+use solana_program::account_info::AccountInfo;
 use solana_program::{
-    account_info::AccountInfo,
     entrypoint,
     entrypoint::ProgramResult,
     instruction::{AccountMeta, Instruction},
@@ -14,7 +13,13 @@ use solana_program::{
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq, BorshSerialize, BorshDeserialize)]
 pub enum MyInstruction {
-    Greeting { id: u32 },
+    Greeting {
+        id: u32,
+    },
+    RPSSet {
+        sender: Pubkey,
+        rps_move: RockPaperScissorsMove,
+    },
 }
 
 pub fn greeting(
@@ -23,6 +28,23 @@ pub fn greeting(
     id: u32,
 ) -> Result<Instruction, ProgramError> {
     let data = MyInstruction::Greeting { id };
+
+    let mut accounts = Vec::with_capacity(1);
+    accounts.push(AccountMeta::new(*greeted_pubkey, false));
+
+    Ok(Instruction::new_with_borsh(*program_id, &data, accounts))
+}
+
+pub fn rps_send(
+    program_id: &Pubkey,
+    greeted_pubkey: &Pubkey,
+    rps_move: RockPaperScissorsMove,
+    sender: &Pubkey,
+) -> Result<Instruction, ProgramError> {
+    let data = MyInstruction::RPSSet {
+        sender: *sender,
+        rps_move,
+    };
 
     let mut accounts = Vec::with_capacity(1);
     accounts.push(AccountMeta::new(*greeted_pubkey, false));
@@ -45,6 +67,9 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], input: &[u8]) -> P
 
     match instruction {
         MyInstruction::Greeting { id: _ } => hello_world::process(program_id, accounts),
+        MyInstruction::RPSSet { rps_move, sender } => {
+            process_rps_set(program_id, accounts, rps_move, sender)
+        }
     }
 }
 

@@ -5,6 +5,7 @@
 // pub mod native_mint;
 // pub mod processor;
 pub mod hello_world;
+pub mod rps;
 
 #[cfg(not(feature = "no-entrypoint"))]
 pub mod entrypoint;
