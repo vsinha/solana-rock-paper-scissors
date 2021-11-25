@@ -2234,17 +2234,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "solana-bpf-helloworld"
-version = "0.0.1"
-dependencies = [
- "borsh",
- "borsh-derive",
- "solana-program",
- "solana-program-test",
- "solana-sdk",
-]
-
-[[package]]
 name = "solana-bpf-loader-program"
 version = "1.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2442,6 +2431,18 @@ checksum = "02da652f0b386a1948b263336b1f5f78d209dc845ad9418a8d21b09c62baf597"
 dependencies = [
  "lazy_static",
  "num_cpus",
+]
+
+[[package]]
+name = "solana-rock-paper-scissors"
+version = "0.0.1"
+dependencies = [
+ "borsh",
+ "borsh-derive",
+ "solana-program",
+ "solana-program-test",
+ "solana-sdk",
+ "thiserror",
 ]
 
 [[package]]

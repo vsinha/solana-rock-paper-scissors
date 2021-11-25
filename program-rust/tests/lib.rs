@@ -1,7 +1,8 @@
 use borsh::BorshDeserialize;
-use helloworld::entrypoint::{greeting, process_instruction, rps_send};
-use helloworld::hello_world::GreetingAccount;
-use helloworld::rps::{RPSState, RockPaperScissorsMove, RockPaperScissorsOutcome};
+use rock_paper_scissors::entrypoint::process_instruction;
+use rock_paper_scissors::hello_world::GreetingAccount;
+use rock_paper_scissors::instruction::{greeting, rps_send};
+use rock_paper_scissors::rps::{RPSState, RockPaperScissorsMove, RockPaperScissorsOutcome};
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_program_test::*;
 use solana_sdk::signature::Keypair;

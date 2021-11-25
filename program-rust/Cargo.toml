@@ -1,6 +1,6 @@
 
 [package]
-name = "solana-bpf-helloworld"
+name = "solana-rock-paper-scissors"
 version = "0.0.1"
 description = "Example template program written in Rust"
 authors = ["Solana Maintainers <maintainers@solana.com>"]
@@ -16,11 +16,12 @@ no-entrypoint = []
 borsh = "0.9.1"
 borsh-derive = "0.9.1"
 solana-program = "=1.7.9"
+thiserror = "*"
 
 [dev-dependencies]
 solana-program-test = "=1.7.9"
 solana-sdk = "=1.7.9"
 
 [lib]
-name = "helloworld"
+name = "rock_paper_scissors"
 crate-type = ["cdylib", "lib"]
